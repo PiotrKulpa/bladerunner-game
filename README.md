@@ -4,6 +4,11 @@ This is a Phaser 3 project template that uses Vite for bundling. It supports hot
 
 **[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-vite)**
 
+## Project Notice
+
+This project is a private, non-commercial initiative. It is not intended to generate any profit.
+This fan project is inspired by the film *Blade Runner*. All characters, names, music, and related intellectual property belong to their respective rights holders. Please support official publishers and rights owners.
+
 ### Versions
 
 This template has been updated for:
