@@ -1,9 +1,10 @@
 import { Scene, GameObjects } from "phaser";
 import { UIButton } from "../ui-components/Button";
+import { UIHeader } from "../ui-components/Header";
 
 export class MainMenu extends Scene {
   background: GameObjects.Image;
-  logo: GameObjects.Text;
+  logo: UIHeader;
   startButton: UIButton;
   fireSprite: GameObjects.Sprite;
   fireUpSprite: GameObjects.Sprite;
@@ -199,13 +200,20 @@ export class MainMenu extends Scene {
       },
     });
 
-    this.logo = this.add.text(centerX, centerY, "blade runner", {
-      fontFamily: "BladeRunner",
-      fontSize: "90px",
-      color: "#ed3d29",
+    this.logo = new UIHeader(this, centerX, centerY, {
+      title: "blade runner",
+      width: this.scale.width * 0.7,
       align: "center",
+      backgroundAlpha: 0,
+      paddingX: 0,
+      paddingY: 0,
+      titleStyle: {
+        fontFamily: "BladeRunner",
+        fontSize: "30px",
+        color: "#ed3d29",
+      },
     });
-    this.logo.setOrigin(0.5);
+    this.logo.getTitleText().setScale(3);
     this.logo.setAlpha(0);
     this.logo.setDepth(3);
 
