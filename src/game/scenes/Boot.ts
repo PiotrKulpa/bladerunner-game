@@ -1,26 +1,26 @@
-import { Scene } from 'phaser';
+import { Scene } from "phaser";
+import { FONT_PRELOAD_ORDER, SCENE_KEYS } from "../config/app-config";
 
-export class Boot extends Scene
-{
-    constructor ()
-    {
-        super('Boot');
+export class Boot extends Scene {
+  constructor() {
+    super(SCENE_KEYS.boot);
+  }
+
+  create() {
+    const startPreloader = () => this.scene.start(SCENE_KEYS.preloader);
+
+    if ("fonts" in document) {
+      Promise.all(
+        FONT_PRELOAD_ORDER.map((fontFamily) =>
+          document.fonts.load(`1em "${fontFamily}"`),
+        ),
+      )
+        .then(startPreloader)
+        .catch(startPreloader);
+
+      return;
     }
 
-    create ()
-    {
-        const startPreloader = () => this.scene.start('Preloader');
-
-        if ('fonts' in document)
-        {
-            Promise.all([
-                document.fonts.load('1em "VT323"'),
-                document.fonts.load('1em "BladeRunner"')
-            ]).then(startPreloader).catch(startPreloader);
-
-            return;
-        }
-
-        startPreloader();
-    }
+    startPreloader();
+  }
 }

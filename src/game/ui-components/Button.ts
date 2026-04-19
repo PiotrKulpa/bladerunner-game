@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from "phaser";
+import { UI_TOKENS } from "../config/app-config";
 
 export interface UIButtonConfig {
   label: string;
@@ -25,15 +26,15 @@ export class UIButton extends GameObjects.Container {
     this.background = scene.add.image(
       0,
       0,
-      config.textureKey ?? "ui-button-bg",
+      config.textureKey ?? UI_TOKENS.button.textureKey,
     );
     this.background.setOrigin(0.5);
     this.background.setInteractive({ useHandCursor: true });
 
     this.labelText = scene.add.text(0, 0, config.label, {
-      fontFamily: config.fontFamily ?? "VT323",
-      fontSize: `${config.fontSize ?? 64}px`,
-      color: config.textColor ?? "#fda93a",
+      fontFamily: config.fontFamily ?? UI_TOKENS.button.fontFamily,
+      fontSize: `${config.fontSize ?? UI_TOKENS.button.fontSize}px`,
+      color: config.textColor ?? UI_TOKENS.button.textColor,
       align: "center",
     });
     this.labelText.setOrigin(0.5);
@@ -64,8 +65,8 @@ export class UIButton extends GameObjects.Container {
 
   setDisabled(disabled: boolean) {
     this.disabled = disabled;
-    this.background.setAlpha(disabled ? 0.65 : 1);
-    this.labelText.setAlpha(disabled ? 0.65 : 1);
+    this.background.setAlpha(disabled ? UI_TOKENS.button.disabledAlpha : 1);
+    this.labelText.setAlpha(disabled ? UI_TOKENS.button.disabledAlpha : 1);
 
     if (disabled) {
       this.background.disableInteractive();

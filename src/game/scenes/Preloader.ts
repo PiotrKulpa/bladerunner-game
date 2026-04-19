@@ -1,54 +1,74 @@
 import { Scene } from "phaser";
+import { ASSETS, COLOR_PALETTE, SCENE_KEYS } from "../config/app-config";
 
 export class Preloader extends Scene {
   constructor() {
-    super("Preloader");
+    super(SCENE_KEYS.preloader);
   }
 
   init() {
     const { centerX, centerY } = this.cameras.main;
-    this.cameras.main.setBackgroundColor(0x000000);
+    this.cameras.main.setBackgroundColor(COLOR_PALETTE.preloaderBackground);
 
-    //  A simple progress bar. This is the outline of the bar.
-    this.add.rectangle(centerX, centerY, 468, 32).setStrokeStyle(1, 0xffffff);
+    this.add
+      .rectangle(centerX, centerY, 468, 32)
+      .setStrokeStyle(1, COLOR_PALETTE.preloaderBar);
 
-    //  This is the progress bar itself. It will increase in size from the left based on the % of progress.
-    const bar = this.add.rectangle(centerX - 230, centerY, 4, 28, 0xffffff);
+    const bar = this.add.rectangle(
+      centerX - 230,
+      centerY,
+      4,
+      28,
+      COLOR_PALETTE.preloaderBar,
+    );
 
-    //  Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
     this.load.on("progress", (progress: number) => {
-      //  Update the progress bar (our bar is 464px wide, so 100% = 464px)
       bar.width = 4 + 460 * progress;
     });
   }
 
   preload() {
-    //  Load the assets for the game - Replace with your own assets
     this.load.setPath("assets");
 
-    this.load.image("main-menu-bg", "main-menu/main-menu-bg.png");
-    this.load.image("ui-button-bg", "ui-components/button-bg.png");
-    this.load.image("flying-car", "main-menu/flying-car.png");
-    this.load.spritesheet("fire-animation", "main-menu/fire-animation.png", {
-      frameWidth: 256,
-      frameHeight: 1024,
-    });
-    this.load.spritesheet("fire-animation-up", "main-menu/fire-animation-up.png", {
-      frameWidth: 96,
-      frameHeight: 96,
-    });
-    this.load.spritesheet("smoke-animation", "main-menu/smoke-animation.png", {
-      frameWidth: 235,
-      frameHeight: 383,
-    });
-    this.load.audio("main-menu-theme", "main-menu/main-menu-music-theme.mp3");
+    this.load.image(
+      ASSETS.images.mainMenuBackground.key,
+      ASSETS.images.mainMenuBackground.path,
+    );
+    this.load.image(
+      ASSETS.images.uiButtonBackground.key,
+      ASSETS.images.uiButtonBackground.path,
+    );
+    this.load.image(ASSETS.images.flyingCar.key, ASSETS.images.flyingCar.path);
+
+    this.load.spritesheet(
+      ASSETS.spritesheets.fireAnimation.key,
+      ASSETS.spritesheets.fireAnimation.path,
+      {
+        frameWidth: ASSETS.spritesheets.fireAnimation.frameWidth,
+        frameHeight: ASSETS.spritesheets.fireAnimation.frameHeight,
+      },
+    );
+    this.load.spritesheet(
+      ASSETS.spritesheets.fireAnimationUp.key,
+      ASSETS.spritesheets.fireAnimationUp.path,
+      {
+        frameWidth: ASSETS.spritesheets.fireAnimationUp.frameWidth,
+        frameHeight: ASSETS.spritesheets.fireAnimationUp.frameHeight,
+      },
+    );
+    this.load.spritesheet(
+      ASSETS.spritesheets.smokeAnimation.key,
+      ASSETS.spritesheets.smokeAnimation.path,
+      {
+        frameWidth: ASSETS.spritesheets.smokeAnimation.frameWidth,
+        frameHeight: ASSETS.spritesheets.smokeAnimation.frameHeight,
+      },
+    );
+
+    this.load.audio(ASSETS.audio.mainMenuTheme.key, ASSETS.audio.mainMenuTheme.path);
   }
 
   create() {
-    //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
-    //  For example, you can define global animations here, so we can use them in other scenes.
-
-    //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-    this.scene.start("MainMenu");
+    this.scene.start(SCENE_KEYS.mainMenu);
   }
 }

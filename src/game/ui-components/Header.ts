@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from "phaser";
+import { UI_TOKENS } from "../config/app-config";
 
 type HeaderAlign = "left" | "center" | "right";
 type TextureFrame = string | number;
@@ -40,14 +41,14 @@ export class UIHeader extends GameObjects.Container {
 
     scene.add.existing(this);
 
-    this.layoutWidth = config.width ?? 900;
-    this.minHeight = config.minHeight ?? 0;
-    this.paddingX = config.paddingX ?? 28;
-    this.paddingY = config.paddingY ?? 20;
-    this.gap = config.gap ?? 10;
-    this.align = config.align ?? "center";
-    this.backgroundColor = config.backgroundColor ?? 0x000000;
-    this.backgroundAlpha = config.backgroundAlpha ?? 0;
+    this.layoutWidth = config.width ?? UI_TOKENS.header.width;
+    this.minHeight = config.minHeight ?? UI_TOKENS.header.minHeight;
+    this.paddingX = config.paddingX ?? UI_TOKENS.header.paddingX;
+    this.paddingY = config.paddingY ?? UI_TOKENS.header.paddingY;
+    this.gap = config.gap ?? UI_TOKENS.header.gap;
+    this.align = config.align ?? UI_TOKENS.header.align;
+    this.backgroundColor = config.backgroundColor ?? UI_TOKENS.header.backgroundColor;
+    this.backgroundAlpha = config.backgroundAlpha ?? UI_TOKENS.header.backgroundAlpha;
 
     this.backgroundRect = scene.add
       .rectangle(0, 0, this.layoutWidth, 1, this.backgroundColor, this.backgroundAlpha)
@@ -62,18 +63,18 @@ export class UIHeader extends GameObjects.Container {
     }
 
     this.titleText = scene.add.text(0, 0, config.title, {
-      fontFamily: "BladeRunner",
-      fontSize: "120px",
-      color: "#fda93a",
+      fontFamily: UI_TOKENS.header.titleStyle.fontFamily,
+      fontSize: UI_TOKENS.header.titleStyle.fontSize,
+      color: UI_TOKENS.header.titleStyle.color,
       align: this.align,
       ...config.titleStyle,
     });
     this.add(this.titleText);
 
     this.subtitleText = scene.add.text(0, 0, config.subtitle ?? "", {
-      fontFamily: "VT323",
-      fontSize: "40px",
-      color: "#fda93a",
+      fontFamily: UI_TOKENS.header.subtitleStyle.fontFamily,
+      fontSize: UI_TOKENS.header.subtitleStyle.fontSize,
+      color: UI_TOKENS.header.subtitleStyle.color,
       align: this.align,
       ...config.subtitleStyle,
     });

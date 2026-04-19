@@ -1,4 +1,5 @@
 import { Boot } from "./scenes/Boot";
+import { APP_IDS, GAME_VIEWPORT } from "./config/app-config";
 import { GameOver } from "./scenes/GameOver";
 import { Game as MainGame } from "./scenes/Game";
 import { MainMenu } from "./scenes/MainMenu";
@@ -9,9 +10,9 @@ import { Preloader } from "./scenes/Preloader";
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
-  width: 1280,
-  height: 720,
-  parent: "game-container",
+  width: GAME_VIEWPORT.width,
+  height: GAME_VIEWPORT.height,
+  parent: APP_IDS.gameContainer,
   pixelArt: true,
   antialias: false,
   roundPixels: true,
@@ -19,7 +20,7 @@ const config: Phaser.Types.Core.GameConfig = {
     mode: Scale.FIT,
     autoCenter: Scale.CENTER_BOTH,
   },
-  backgroundColor: "#028af8",
+  backgroundColor: GAME_VIEWPORT.backgroundColor,
   scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
 };
 
