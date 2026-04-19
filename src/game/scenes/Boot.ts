@@ -13,7 +13,10 @@ export class Boot extends Scene
 
         if ('fonts' in document)
         {
-            document.fonts.load('1em "VT323"').then(startPreloader).catch(startPreloader);
+            Promise.all([
+                document.fonts.load('1em "VT323"'),
+                document.fonts.load('1em "BladeRunner"')
+            ]).then(startPreloader).catch(startPreloader);
 
             return;
         }

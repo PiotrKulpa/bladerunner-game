@@ -1,9 +1,10 @@
 import { Scene, GameObjects } from "phaser";
+import { UIButton } from "../ui-components/Button";
 
 export class MainMenu extends Scene {
   background: GameObjects.Image;
-  logo: GameObjects.Image;
-  startButton: GameObjects.Image;
+  logo: GameObjects.Text;
+  startButton: UIButton;
   fireSprite: GameObjects.Sprite;
   fireUpSprite: GameObjects.Sprite;
   fireUpSpriteClone: GameObjects.Sprite;
@@ -198,18 +199,27 @@ export class MainMenu extends Scene {
       },
     });
 
-    this.logo = this.add.image(centerX, centerY, "logo");
-    const targetLogoWidth = this.scale.width * 0.5;
-    this.logo.setScale(targetLogoWidth / this.logo.width);
+    this.logo = this.add.text(centerX, centerY, "blade runner", {
+      fontFamily: "BladeRunner",
+      fontSize: "90px",
+      color: "#ed3d29",
+      align: "center",
+    });
+    this.logo.setOrigin(0.5);
     this.logo.setAlpha(0);
     this.logo.setDepth(3);
 
-    this.startButton = this.add.image(centerX, centerY + 100, "start-button");
-    this.startButton.setOrigin(0.5);
+    this.startButton = new UIButton(this, centerX, centerY + 100, {
+      label: "START",
+      onClick: () => {
+        this.startButton.setDisabled(true);
+        this.menuMusic?.stop();
+        this.scene.start("Game");
+      },
+    });
     this.startButton.setScale(0.5);
     this.startButton.setDepth(3);
     this.startButton.setAlpha(0);
-    this.startButton.setInteractive({ useHandCursor: true });
 
     this.input.enabled = false;
 
@@ -248,11 +258,6 @@ export class MainMenu extends Scene {
       delay: 5400,
       duration: 800,
       ease: "Sine.easeInOut",
-    });
-
-    this.startButton.once("pointerdown", () => {
-      this.menuMusic?.stop();
-      this.scene.start("Game");
     });
 
     this.menuMusic = this.sound.add("main-menu-theme", {

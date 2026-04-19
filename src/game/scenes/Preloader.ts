@@ -26,9 +26,8 @@ export class Preloader extends Scene {
     //  Load the assets for the game - Replace with your own assets
     this.load.setPath("assets");
 
-    this.load.image("logo", "logo.png");
     this.load.image("main-menu-bg", "main-menu/main-menu-bg.png");
-    this.load.image("start-button", "main-menu/start-button.png");
+    this.load.image("ui-button-bg", "ui-components/button-bg.png");
     this.load.image("flying-car", "main-menu/flying-car.png");
     this.load.spritesheet("fire-animation", "main-menu/fire-animation.png", {
       frameWidth: 256,
