@@ -64,6 +64,14 @@ export class Preloader extends Scene {
         frameHeight: ASSETS.spritesheets.smokeAnimation.frameHeight,
       },
     );
+    this.load.spritesheet(
+      ASSETS.spritesheets.gameOverOwlAnimation.key,
+      ASSETS.spritesheets.gameOverOwlAnimation.path,
+      {
+        frameWidth: ASSETS.spritesheets.gameOverOwlAnimation.frameWidth,
+        frameHeight: ASSETS.spritesheets.gameOverOwlAnimation.frameHeight,
+      },
+    );
 
     this.load.audio(ASSETS.audio.mainMenuTheme.key, ASSETS.audio.mainMenuTheme.path);
   }

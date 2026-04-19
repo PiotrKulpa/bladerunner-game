@@ -22,7 +22,10 @@ export const FONT_FAMILIES = {
   fallback: "Arial Black",
 } as const;
 
-export const FONT_PRELOAD_ORDER = [FONT_FAMILIES.ui, FONT_FAMILIES.header] as const;
+export const FONT_PRELOAD_ORDER = [
+  FONT_FAMILIES.ui,
+  FONT_FAMILIES.header,
+] as const;
 
 export const COLOR_PALETTE = {
   blackHex: "#000000",
@@ -44,7 +47,7 @@ export const CONTENT_TEXT = {
     message: "Make something fun!\nand share it with us:\nsupport@phaser.io",
   },
   gameOver: {
-    title: "Game Over",
+    headerTitle: "game over",
   },
 } as const;
 
@@ -81,6 +84,12 @@ export const ASSETS = {
       path: "main-menu/smoke-animation.png",
       frameWidth: 235,
       frameHeight: 383,
+    },
+    gameOverOwlAnimation: {
+      key: "game-over-owl-animation",
+      path: "game-over/owl-animation-sheet.png",
+      frameWidth: 265,
+      frameHeight: 220,
     },
   },
   audio: {
@@ -149,4 +158,35 @@ export const MAIN_MENU_TIMINGS = {
 export const MAIN_MENU_AUDIO = {
   themeLoop: true,
   themeVolume: 0.5,
+} as const;
+
+export const GAME_OVER_OWL = {
+  animationKey: "game-over-owl-loop",
+  frameStart: 0,
+  frameEnd: 4,
+  frameRate: 7,
+  repeat: 0,
+  triggerIntervalMs: 6000,
+  marginLeft: 20,
+  marginBottom: 12,
+  scale: 1,
+  depth: 4,
+} as const;
+
+export const GAME_OVER_RAIN = {
+  textureKey: "game-over-rain-drop",
+  dropWidth: 2,
+  dropHeight: 12,
+  dropColor: 0xaad4ff,
+  dropAlpha: 0.85,
+  yStart: -20,
+  lifespanMs: 700,
+  speedYMin: 700,
+  speedYMax: 1100,
+  speedXMin: 0,
+  speedXMax: 0,
+  quantity: 16,
+  alphaStart: 0.65,
+  alphaEnd: 0.2,
+  depth: 2,
 } as const;
