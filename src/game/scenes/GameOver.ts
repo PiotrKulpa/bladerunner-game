@@ -1,4 +1,4 @@
-import { Scene, GameObjects } from "phaser";
+import { Scene } from "phaser";
 import {
   ASSETS,
   COLOR_PALETTE,
@@ -11,21 +11,21 @@ import {
   SCENE_KEYS,
   UI_TOKENS,
 } from "../config/app-config";
+import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
+import { MenuZoomBackground } from "../scene-objects/MenuZoomBackground";
+import type { SpriteAnimationConfig } from "../scene-objects/SpriteAnimationConfig";
 import { UIButton } from "../ui-components/Button";
 import { UIHeader } from "../ui-components/Header";
 
+const GAME_OVER_ANIMATION_KEYS = {
+  smokeLoop: "smoke-loop-sprite",
+} as const;
+
 export class GameOver extends Scene {
-  background: GameObjects.Image;
+  menuBackground: MenuZoomBackground;
   logo: UIHeader;
   startButton: UIButton;
-  smokeSprite: GameObjects.Sprite;
-  smokeSpriteClone: GameObjects.Sprite;
-  backgroundBaseScaleX: number;
-  backgroundBaseScaleY: number;
-  smokeBaseOffsetX: number;
-  smokeBaseOffsetY: number;
-  smokeCloneBaseOffsetX: number;
-  smokeCloneBaseOffsetY: number;
+  anchoredEffects: AnchoredAnimatedSprite[] = [];
   menuMusic?: Phaser.Sound.BaseSound;
 
   constructor() {
@@ -34,144 +34,18 @@ export class GameOver extends Scene {
 
   create() {
     const { centerX, centerY } = this.cameras.main;
-    const bgZoomScale = MAIN_MENU_LAYOUT.backgroundZoomScale;
 
-    // Local override for menu background to reduce scaling artifacts.
-    this.cameras.main.roundPixels = false;
-    this.textures.get(ASSETS.images.mainMenuBackground.key).setFilter(0);
-
-    this.background = this.add.image(
-      centerX,
-      centerY,
-      ASSETS.images.mainMenuBackground.key,
-    );
-    this.background.setDisplaySize(this.scale.width, this.scale.height);
-    this.backgroundBaseScaleX = this.background.scaleX;
-    this.backgroundBaseScaleY = this.background.scaleY;
-
-    this.tweens.add({
-      targets: this.background,
-      scaleX: this.backgroundBaseScaleX * bgZoomScale,
-      scaleY: this.backgroundBaseScaleY * bgZoomScale,
-      duration: MAIN_MENU_TIMINGS.backgroundZoomDurationMs,
-      ease: "Sine.easeInOut",
-      yoyo: true,
-      repeat: -1,
+    this.menuBackground = new MenuZoomBackground(this, {
+      textureKey: ASSETS.images.mainMenuBackground.key,
+      zoomScale: MAIN_MENU_LAYOUT.backgroundZoomScale,
+      zoomDurationMs: MAIN_MENU_TIMINGS.backgroundZoomDurationMs,
     });
 
-    if (!this.textures.exists(GAME_OVER_RAIN.textureKey)) {
-      const dropTexture = this.add.graphics();
-      dropTexture.setVisible(false);
-      dropTexture.fillStyle(GAME_OVER_RAIN.dropColor, GAME_OVER_RAIN.dropAlpha);
-      dropTexture.fillRect(
-        0,
-        0,
-        GAME_OVER_RAIN.dropWidth,
-        GAME_OVER_RAIN.dropHeight,
-      );
-      dropTexture.generateTexture(
-        GAME_OVER_RAIN.textureKey,
-        GAME_OVER_RAIN.dropWidth,
-        GAME_OVER_RAIN.dropHeight,
-      );
-      dropTexture.destroy();
-    }
-
-    const rain = this.add.particles(0, 0, GAME_OVER_RAIN.textureKey, {
-      x: { min: 0, max: this.scale.width },
-      y: GAME_OVER_RAIN.yStart,
-      lifespan: GAME_OVER_RAIN.lifespanMs,
-      speedY: { min: GAME_OVER_RAIN.speedYMin, max: GAME_OVER_RAIN.speedYMax },
-      speedX: { min: GAME_OVER_RAIN.speedXMin, max: GAME_OVER_RAIN.speedXMax },
-      quantity: GAME_OVER_RAIN.quantity,
-      alpha: { start: GAME_OVER_RAIN.alphaStart, end: GAME_OVER_RAIN.alphaEnd },
-    });
-    rain.setDepth(GAME_OVER_RAIN.depth);
-
-    if (!this.anims.exists("smoke-loop-sprite")) {
-      this.anims.create({
-        key: "smoke-loop-sprite",
-        frames: this.anims.generateFrameNumbers(
-          ASSETS.spritesheets.smokeAnimation.key,
-          {
-            start: 0,
-            end: 7,
-          },
-        ),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-
-    if (!this.anims.exists(GAME_OVER_OWL.animationKey)) {
-      this.anims.create({
-        key: GAME_OVER_OWL.animationKey,
-        frames: this.anims.generateFrameNumbers(
-          ASSETS.spritesheets.gameOverOwlAnimation.key,
-          {
-            start: GAME_OVER_OWL.frameStart,
-            end: GAME_OVER_OWL.frameEnd,
-          },
-        ),
-        frameRate: GAME_OVER_OWL.frameRate,
-        repeat: GAME_OVER_OWL.repeat,
-      });
-    }
-
-    this.smokeSprite = this.add.sprite(
-      918,
-      430,
-      ASSETS.spritesheets.smokeAnimation.key,
-    );
-    this.smokeSprite.setDepth(2);
-    this.smokeSprite.setScale(0.4);
-    this.smokeSprite.setAlpha(0.55);
-    this.smokeSprite.play("smoke-loop-sprite");
-    this.smokeBaseOffsetX = this.smokeSprite.x - centerX;
-    this.smokeBaseOffsetY = this.smokeSprite.y - centerY;
-
-    this.smokeSpriteClone = this.add.sprite(
-      296,
-      500,
-      ASSETS.spritesheets.smokeAnimation.key,
-    );
-    this.smokeSpriteClone.setDepth(2);
-    this.smokeSpriteClone.setScale(1);
-    this.smokeSpriteClone.setAlpha(0.55);
-    this.smokeSpriteClone.play("smoke-loop-sprite");
-    this.smokeCloneBaseOffsetX = this.smokeSpriteClone.x - centerX;
-    this.smokeCloneBaseOffsetY = this.smokeSpriteClone.y - centerY;
-
-    const smokeSpriteBottomCenter = this.add.sprite(
-      centerX,
-      this.scale.height,
-      ASSETS.spritesheets.smokeAnimation.key,
-    );
-    smokeSpriteBottomCenter.setDepth(2);
-    smokeSpriteBottomCenter.setScale(1.2);
-    smokeSpriteBottomCenter.setOrigin(0.5, 1);
-    smokeSpriteBottomCenter.setAlpha(0.55);
-    smokeSpriteBottomCenter.play("smoke-loop-sprite");
-
-    const owlSprite = this.add.sprite(
-      GAME_OVER_OWL.marginLeft,
-      this.scale.height - GAME_OVER_OWL.marginBottom,
-      ASSETS.spritesheets.gameOverOwlAnimation.key,
-    );
-    owlSprite.setOrigin(0, 1);
-    owlSprite.setDepth(GAME_OVER_OWL.depth);
-    owlSprite.setScale(GAME_OVER_OWL.scale);
-    owlSprite.setFrame(GAME_OVER_OWL.frameStart);
-
-    this.time.addEvent({
-      delay: GAME_OVER_OWL.triggerIntervalMs,
-      loop: true,
-      callback: () => {
-        if (!owlSprite.anims.isPlaying) {
-          owlSprite.play(GAME_OVER_OWL.animationKey, true);
-        }
-      },
-    });
+    this.createRainEffect();
+    this.ensureAnimations();
+    this.createAmbientEffects(centerX, centerY);
+    this.createBottomCenterSmoke(centerX);
+    this.createOwl();
 
     this.logo = new UIHeader(
       this,
@@ -251,20 +125,158 @@ export class GameOver extends Scene {
   }
 
   update() {
-    if (!this.smokeSprite || !this.smokeSpriteClone || !this.background) {
+    if (!this.menuBackground) {
       return;
     }
 
     const { centerX, centerY } = this.cameras.main;
-    const bgScaleRatioX = this.background.scaleX / this.backgroundBaseScaleX;
-    const bgScaleRatioY = this.background.scaleY / this.backgroundBaseScaleY;
+    const bgScaleRatios = this.menuBackground.getScaleRatios();
 
-    this.smokeSprite.x = centerX + this.smokeBaseOffsetX * bgScaleRatioX;
-    this.smokeSprite.y = centerY + this.smokeBaseOffsetY * bgScaleRatioY;
+    for (const effect of this.anchoredEffects) {
+      effect.syncWithBackground(
+        centerX,
+        centerY,
+        bgScaleRatios.x,
+        bgScaleRatios.y,
+      );
+    }
+  }
 
-    this.smokeSpriteClone.x =
-      centerX + this.smokeCloneBaseOffsetX * bgScaleRatioX;
-    this.smokeSpriteClone.y =
-      centerY + this.smokeCloneBaseOffsetY * bgScaleRatioY;
+  private ensureAnimations() {
+    const animationDefinitions: SpriteAnimationConfig[] = [
+      {
+        key: GAME_OVER_ANIMATION_KEYS.smokeLoop,
+        textureKey: ASSETS.spritesheets.smokeAnimation.key,
+        frameStart: 0,
+        frameEnd: 7,
+        frameRate: 10,
+        repeat: -1,
+      },
+      {
+        key: GAME_OVER_OWL.animationKey,
+        textureKey: ASSETS.spritesheets.gameOverOwlAnimation.key,
+        frameStart: GAME_OVER_OWL.frameStart,
+        frameEnd: GAME_OVER_OWL.frameEnd,
+        frameRate: GAME_OVER_OWL.frameRate,
+        repeat: GAME_OVER_OWL.repeat,
+      },
+    ];
+
+    for (const config of animationDefinitions) {
+      this.ensureAnimation(config);
+    }
+  }
+
+  private ensureAnimation(config: SpriteAnimationConfig) {
+    if (this.anims.exists(config.key)) {
+      return;
+    }
+
+    this.anims.create({
+      key: config.key,
+      frames: this.anims.generateFrameNumbers(config.textureKey, {
+        start: config.frameStart,
+        end: config.frameEnd,
+      }),
+      frameRate: config.frameRate,
+      repeat: config.repeat,
+      showOnStart: config.showOnStart,
+      hideOnComplete: config.hideOnComplete,
+    });
+  }
+
+  private createRainEffect() {
+    if (!this.textures.exists(GAME_OVER_RAIN.textureKey)) {
+      const dropTexture = this.add.graphics();
+      dropTexture.setVisible(false);
+      dropTexture.fillStyle(GAME_OVER_RAIN.dropColor, GAME_OVER_RAIN.dropAlpha);
+      dropTexture.fillRect(
+        0,
+        0,
+        GAME_OVER_RAIN.dropWidth,
+        GAME_OVER_RAIN.dropHeight,
+      );
+      dropTexture.generateTexture(
+        GAME_OVER_RAIN.textureKey,
+        GAME_OVER_RAIN.dropWidth,
+        GAME_OVER_RAIN.dropHeight,
+      );
+      dropTexture.destroy();
+    }
+
+    const rain = this.add.particles(0, 0, GAME_OVER_RAIN.textureKey, {
+      x: { min: 0, max: this.scale.width },
+      y: GAME_OVER_RAIN.yStart,
+      lifespan: GAME_OVER_RAIN.lifespanMs,
+      speedY: { min: GAME_OVER_RAIN.speedYMin, max: GAME_OVER_RAIN.speedYMax },
+      speedX: { min: GAME_OVER_RAIN.speedXMin, max: GAME_OVER_RAIN.speedXMax },
+      quantity: GAME_OVER_RAIN.quantity,
+      alpha: { start: GAME_OVER_RAIN.alphaStart, end: GAME_OVER_RAIN.alphaEnd },
+    });
+    rain.setDepth(GAME_OVER_RAIN.depth);
+  }
+
+  private createAmbientEffects(centerX: number, centerY: number) {
+    const smokeSprite = new AnchoredAnimatedSprite(this, centerX, centerY, {
+      x: 918,
+      y: 430,
+      textureKey: ASSETS.spritesheets.smokeAnimation.key,
+      depth: 2,
+      scale: 0.4,
+      alpha: 0.55,
+      animationKey: GAME_OVER_ANIMATION_KEYS.smokeLoop,
+    });
+
+    const smokeSpriteClone = new AnchoredAnimatedSprite(
+      this,
+      centerX,
+      centerY,
+      {
+        x: 296,
+        y: 500,
+        textureKey: ASSETS.spritesheets.smokeAnimation.key,
+        depth: 2,
+        scale: 1,
+        alpha: 0.55,
+        animationKey: GAME_OVER_ANIMATION_KEYS.smokeLoop,
+      },
+    );
+
+    this.anchoredEffects = [smokeSprite, smokeSpriteClone];
+  }
+
+  private createBottomCenterSmoke(centerX: number) {
+    const smokeSpriteBottomCenter = this.add.sprite(
+      centerX,
+      this.scale.height,
+      ASSETS.spritesheets.smokeAnimation.key,
+    );
+    smokeSpriteBottomCenter.setDepth(2);
+    smokeSpriteBottomCenter.setScale(1.2);
+    smokeSpriteBottomCenter.setOrigin(0.5, 1);
+    smokeSpriteBottomCenter.setAlpha(0.55);
+    smokeSpriteBottomCenter.play(GAME_OVER_ANIMATION_KEYS.smokeLoop);
+  }
+
+  private createOwl() {
+    const owlSprite = this.add.sprite(
+      GAME_OVER_OWL.marginLeft,
+      this.scale.height - GAME_OVER_OWL.marginBottom,
+      ASSETS.spritesheets.gameOverOwlAnimation.key,
+    );
+    owlSprite.setOrigin(0, 1);
+    owlSprite.setDepth(GAME_OVER_OWL.depth);
+    owlSprite.setScale(GAME_OVER_OWL.scale);
+    owlSprite.setFrame(GAME_OVER_OWL.frameStart);
+
+    this.time.addEvent({
+      delay: GAME_OVER_OWL.triggerIntervalMs,
+      loop: true,
+      callback: () => {
+        if (!owlSprite.anims.isPlaying) {
+          owlSprite.play(GAME_OVER_OWL.animationKey, true);
+        }
+      },
+    });
   }
 }

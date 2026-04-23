@@ -13,7 +13,7 @@ export const SCENE_KEYS = {
 export const GAME_VIEWPORT = {
   width: 1280,
   height: 720,
-  backgroundColor: "#028af8",
+  backgroundColor: "#000000",
 } as const;
 
 export const FONT_FAMILIES = {

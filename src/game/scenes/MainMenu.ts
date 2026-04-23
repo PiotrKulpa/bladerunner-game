@@ -1,4 +1,4 @@
-import { Scene, GameObjects } from "phaser";
+import { Scene } from "phaser";
 import {
   ASSETS,
   COLOR_PALETTE,
@@ -9,33 +9,25 @@ import {
   SCENE_KEYS,
   UI_TOKENS,
 } from "../config/app-config";
+import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
+import { LoopedBurstAnimation } from "../scene-objects/LoopedBurstAnimation";
+import { MainMenuFlyingCar } from "../scene-objects/MainMenuFlyingCar";
+import { MenuZoomBackground } from "../scene-objects/MenuZoomBackground";
+import type { SpriteAnimationConfig } from "../scene-objects/SpriteAnimationConfig";
 import { UIButton } from "../ui-components/Button";
 import { UIHeader } from "../ui-components/Header";
 
+const MAIN_MENU_ANIMATION_KEYS = {
+  fireBurn: "fire-burn-sprite",
+  fireBurstUp: "fire-burst-up-sprite",
+  smokeLoop: "smoke-loop-sprite",
+} as const;
+
 export class MainMenu extends Scene {
-  background: GameObjects.Image;
+  menuBackground: MenuZoomBackground;
   logo: UIHeader;
   startButton: UIButton;
-  fireSprite: GameObjects.Sprite;
-  fireUpSprite: GameObjects.Sprite;
-  fireUpSpriteClone: GameObjects.Sprite;
-  fireUpSpriteClone2: GameObjects.Sprite;
-  smokeSprite: GameObjects.Sprite;
-  smokeSpriteClone: GameObjects.Sprite;
-  backgroundBaseScaleX: number;
-  backgroundBaseScaleY: number;
-  fireBaseOffsetX: number;
-  fireBaseOffsetY: number;
-  fireUpBaseOffsetX: number;
-  fireUpBaseOffsetY: number;
-  fireUpCloneBaseOffsetX: number;
-  fireUpCloneBaseOffsetY: number;
-  fireUpClone2BaseOffsetX: number;
-  fireUpClone2BaseOffsetY: number;
-  smokeBaseOffsetX: number;
-  smokeBaseOffsetY: number;
-  smokeCloneBaseOffsetX: number;
-  smokeCloneBaseOffsetY: number;
+  anchoredEffects: AnchoredAnimatedSprite[] = [];
   menuMusic?: Phaser.Sound.BaseSound;
 
   constructor() {
@@ -44,227 +36,65 @@ export class MainMenu extends Scene {
 
   create() {
     const { centerX, centerY } = this.cameras.main;
-    const bgZoomScale = MAIN_MENU_LAYOUT.backgroundZoomScale;
 
-    // Local override for menu background to reduce scaling artifacts.
-    this.cameras.main.roundPixels = false;
-    this.textures.get(ASSETS.images.mainMenuBackground.key).setFilter(0);
+    this.menuBackground = new MenuZoomBackground(this, {
+      textureKey: ASSETS.images.mainMenuBackground.key,
+      zoomScale: MAIN_MENU_LAYOUT.backgroundZoomScale,
+      zoomDurationMs: MAIN_MENU_TIMINGS.backgroundZoomDurationMs,
+    });
 
-    this.background = this.add.image(
+    new MainMenuFlyingCar(this, {
+      textureKey: ASSETS.images.flyingCar.key,
+      depth: 1,
+      startOffsetY: -100,
+      endOffsetY: -30,
+      primaryEndOffsetX: 140,
+      exitOffsetY: -30,
+      startScale: 0.6,
+      midScale: 0.3,
+      endScale: 0.1,
+      primaryDurationMs: MAIN_MENU_TIMINGS.flyingCarPrimaryDurationMs,
+      exitDurationMs: MAIN_MENU_TIMINGS.flyingCarExitDurationMs,
+    });
+
+    this.ensureAnimations();
+    this.createAmbientEffects(centerX, centerY);
+
+    this.logo = new UIHeader(
+      this,
       centerX,
-      centerY,
-      ASSETS.images.mainMenuBackground.key,
-    );
-    this.background.setDisplaySize(this.scale.width, this.scale.height);
-    this.backgroundBaseScaleX = this.background.scaleX;
-    this.backgroundBaseScaleY = this.background.scaleY;
-
-    this.tweens.add({
-      targets: this.background,
-      scaleX: this.backgroundBaseScaleX * bgZoomScale,
-      scaleY: this.backgroundBaseScaleY * bgZoomScale,
-      duration: MAIN_MENU_TIMINGS.backgroundZoomDurationMs,
-      ease: "Sine.easeInOut",
-      yoyo: true,
-      repeat: -1,
-    });
-
-    const flyingCar = this.add.image(0, 0, ASSETS.images.flyingCar.key);
-    flyingCar.setDepth(1);
-
-    const startCarX = -flyingCar.width * 0.5;
-    const startCarY = centerY - 100;
-    const endCarX = this.scale.width + flyingCar.width * 0.5;
-    const endCarY = centerY - 30;
-    const startCarScale = 0.6;
-    const midCarScale = 0.3;
-    const endCarScale = 0.1;
-
-    const playFlyingCarFlyby = () => {
-      flyingCar.setPosition(startCarX, startCarY);
-      flyingCar.setScale(startCarScale);
-      flyingCar.setAlpha(1);
-
-      this.tweens.add({
-        targets: flyingCar,
-        x: endCarX - 140,
-        y: endCarY,
-        scaleX: midCarScale,
-        scaleY: midCarScale,
-        duration: MAIN_MENU_TIMINGS.flyingCarPrimaryDurationMs,
-        ease: "Sine.easeInOut",
-        onComplete: () => {
-          this.tweens.add({
-            targets: flyingCar,
-            x: endCarX,
-            y: endCarY - 30,
-            alpha: 0,
-            scaleX: endCarScale,
-            scaleY: endCarScale,
-            duration: MAIN_MENU_TIMINGS.flyingCarExitDurationMs,
-            ease: "Linear",
-          });
+      centerY + MAIN_MENU_LAYOUT.headerOffsetY,
+      {
+        title: CONTENT_TEXT.mainMenu.headerTitle,
+        width: this.scale.width * MAIN_MENU_LAYOUT.headerWidthRatio,
+        align: "center",
+        backgroundAlpha: 0,
+        paddingX: 0,
+        paddingY: 0,
+        titleStyle: {
+          fontFamily: UI_TOKENS.header.titleStyle.fontFamily,
+          fontSize: "30px",
+          color: COLOR_PALETTE.headerPrimaryHex,
         },
-      });
-    };
-
-    playFlyingCarFlyby();
-
-    if (!this.anims.exists("fire-burn-sprite")) {
-      this.anims.create({
-        key: "fire-burn-sprite",
-        frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.fireAnimation.key, {
-          start: 0,
-          end: 5,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-
-    if (!this.anims.exists("fire-burst-up-sprite")) {
-      this.anims.create({
-        key: "fire-burst-up-sprite",
-        frames: this.anims.generateFrameNumbers(
-          ASSETS.spritesheets.fireAnimationUp.key,
-          {
-            start: 0,
-            end: 7,
-          },
-        ),
-        frameRate: 14,
-        repeat: 0,
-        showOnStart: true,
-        hideOnComplete: true,
-      });
-    }
-
-    if (!this.anims.exists("smoke-loop-sprite")) {
-      this.anims.create({
-        key: "smoke-loop-sprite",
-        frames: this.anims.generateFrameNumbers(
-          ASSETS.spritesheets.smokeAnimation.key,
-          {
-            start: 0,
-            end: 7,
-          },
-        ),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-
-    this.fireSprite = this.add.sprite(96, 200, ASSETS.spritesheets.fireAnimation.key);
-    this.fireSprite.setDepth(2);
-    this.fireSprite.setScale(0.4);
-    this.fireSprite.play("fire-burn-sprite");
-    this.fireBaseOffsetX = this.fireSprite.x - centerX;
-    this.fireBaseOffsetY = this.fireSprite.y - centerY;
-
-    this.fireUpSprite = this.add.sprite(
-      1018,
-      490,
-      ASSETS.spritesheets.fireAnimationUp.key,
-    );
-    this.fireUpSprite.setDepth(2);
-    this.fireUpSprite.setScale(0.4);
-    this.fireUpSprite.setVisible(false);
-    this.fireUpSprite.anims.timeScale = 0.6;
-    this.fireUpBaseOffsetX = this.fireUpSprite.x - centerX;
-    this.fireUpBaseOffsetY = this.fireUpSprite.y - centerY;
-
-    this.fireUpSpriteClone = this.add.sprite(
-      256,
-      416,
-      ASSETS.spritesheets.fireAnimationUp.key,
-    );
-    this.fireUpSpriteClone.setDepth(2);
-    this.fireUpSpriteClone.setScale(0.4);
-    this.fireUpSpriteClone.setVisible(false);
-    this.fireUpSpriteClone.anims.timeScale = 0.8;
-    this.fireUpCloneBaseOffsetX = this.fireUpSpriteClone.x - centerX;
-    this.fireUpCloneBaseOffsetY = this.fireUpSpriteClone.y - centerY;
-    const fireUpCloneDelayMs = MAIN_MENU_TIMINGS.fireBurstCloneDelayMs;
-
-    this.fireUpSpriteClone2 = this.add.sprite(
-      456,
-      616,
-      ASSETS.spritesheets.fireAnimationUp.key,
-    );
-    this.fireUpSpriteClone2.setDepth(2);
-    this.fireUpSpriteClone2.setScale(0.7);
-    this.fireUpSpriteClone2.setVisible(false);
-    this.fireUpSpriteClone2.anims.timeScale = 0.8;
-    this.fireUpClone2BaseOffsetX = this.fireUpSpriteClone2.x - centerX;
-    this.fireUpClone2BaseOffsetY = this.fireUpSpriteClone2.y - centerY;
-    const fireUpClone2DelayMs = MAIN_MENU_TIMINGS.fireBurstClone2DelayMs;
-
-    this.smokeSprite = this.add.sprite(
-      918,
-      430,
-      ASSETS.spritesheets.smokeAnimation.key,
-    );
-    this.smokeSprite.setDepth(2);
-    this.smokeSprite.setScale(0.4);
-    this.smokeSprite.setAlpha(0.55);
-    this.smokeSprite.play("smoke-loop-sprite");
-    this.smokeBaseOffsetX = this.smokeSprite.x - centerX;
-    this.smokeBaseOffsetY = this.smokeSprite.y - centerY;
-
-    this.smokeSpriteClone = this.add.sprite(
-      296,
-      500,
-      ASSETS.spritesheets.smokeAnimation.key,
-    );
-    this.smokeSpriteClone.setDepth(2);
-    this.smokeSpriteClone.setScale(1);
-    this.smokeSpriteClone.setAlpha(0.55);
-    this.smokeSpriteClone.play("smoke-loop-sprite");
-    this.smokeCloneBaseOffsetX = this.smokeSpriteClone.x - centerX;
-    this.smokeCloneBaseOffsetY = this.smokeSpriteClone.y - centerY;
-
-    this.time.addEvent({
-      delay: MAIN_MENU_TIMINGS.fireBurstLoopDelayMs,
-      loop: true,
-      callback: () => {
-        this.fireUpSprite.play("fire-burst-up-sprite", true);
-        this.fireUpSprite.anims.timeScale = 0.6;
-        this.time.delayedCall(fireUpCloneDelayMs, () => {
-          this.fireUpSpriteClone.play("fire-burst-up-sprite", true);
-          this.fireUpSpriteClone.anims.timeScale = 0.9;
-        });
-        this.time.delayedCall(fireUpClone2DelayMs, () => {
-          this.fireUpSpriteClone2.play("fire-burst-up-sprite", true);
-          this.fireUpSpriteClone2.anims.timeScale = 0.7;
-        });
       },
-    });
-
-    this.logo = new UIHeader(this, centerX, centerY + MAIN_MENU_LAYOUT.headerOffsetY, {
-      title: CONTENT_TEXT.mainMenu.headerTitle,
-      width: this.scale.width * MAIN_MENU_LAYOUT.headerWidthRatio,
-      align: "center",
-      backgroundAlpha: 0,
-      paddingX: 0,
-      paddingY: 0,
-      titleStyle: {
-        fontFamily: UI_TOKENS.header.titleStyle.fontFamily,
-        fontSize: "30px",
-        color: COLOR_PALETTE.headerPrimaryHex,
-      },
-    });
+    );
     this.logo.getTitleText().setScale(MAIN_MENU_LAYOUT.headerScale);
     this.logo.setAlpha(0);
     this.logo.setDepth(3);
 
-    this.startButton = new UIButton(this, centerX, centerY + MAIN_MENU_LAYOUT.startButtonOffsetY, {
-      label: CONTENT_TEXT.mainMenu.startButtonLabel,
-      onClick: () => {
-        this.startButton.setDisabled(true);
-        this.menuMusic?.stop();
-        this.scene.start(SCENE_KEYS.game);
+    this.startButton = new UIButton(
+      this,
+      centerX,
+      centerY + MAIN_MENU_LAYOUT.startButtonOffsetY,
+      {
+        label: CONTENT_TEXT.mainMenu.startButtonLabel,
+        onClick: () => {
+          this.startButton.setDisabled(true);
+          this.menuMusic?.stop();
+          this.scene.start(SCENE_KEYS.game);
+        },
       },
-    });
+    );
     this.startButton.setScale(UI_TOKENS.button.defaultScale);
     this.startButton.setDepth(3);
     this.startButton.setAlpha(0);
@@ -316,44 +146,178 @@ export class MainMenu extends Scene {
   }
 
   update() {
-    if (
-      !this.fireSprite ||
-      !this.fireUpSprite ||
-      !this.fireUpSpriteClone ||
-      !this.fireUpSpriteClone2 ||
-      !this.smokeSprite ||
-      !this.smokeSpriteClone ||
-      !this.background
-    ) {
+    if (!this.menuBackground) {
       return;
     }
 
     const { centerX, centerY } = this.cameras.main;
-    const bgScaleRatioX = this.background.scaleX / this.backgroundBaseScaleX;
-    const bgScaleRatioY = this.background.scaleY / this.backgroundBaseScaleY;
+    const bgScaleRatios = this.menuBackground.getScaleRatios();
 
-    this.fireSprite.x = centerX + this.fireBaseOffsetX * bgScaleRatioX;
-    this.fireSprite.y = centerY + this.fireBaseOffsetY * bgScaleRatioY;
+    for (const effect of this.anchoredEffects) {
+      effect.syncWithBackground(
+        centerX,
+        centerY,
+        bgScaleRatios.x,
+        bgScaleRatios.y,
+      );
+    }
+  }
 
-    this.fireUpSprite.x = centerX + this.fireUpBaseOffsetX * bgScaleRatioX;
-    this.fireUpSprite.y = centerY + this.fireUpBaseOffsetY * bgScaleRatioY;
+  private ensureAnimations() {
+    const animationDefinitions: SpriteAnimationConfig[] = [
+      {
+        key: MAIN_MENU_ANIMATION_KEYS.fireBurn,
+        textureKey: ASSETS.spritesheets.fireAnimation.key,
+        frameStart: 0,
+        frameEnd: 5,
+        frameRate: 10,
+        repeat: -1,
+      },
+      {
+        key: MAIN_MENU_ANIMATION_KEYS.fireBurstUp,
+        textureKey: ASSETS.spritesheets.fireAnimationUp.key,
+        frameStart: 0,
+        frameEnd: 7,
+        frameRate: 14,
+        repeat: 0,
+        showOnStart: true,
+        hideOnComplete: true,
+      },
+      {
+        key: MAIN_MENU_ANIMATION_KEYS.smokeLoop,
+        textureKey: ASSETS.spritesheets.smokeAnimation.key,
+        frameStart: 0,
+        frameEnd: 7,
+        frameRate: 10,
+        repeat: -1,
+      },
+    ];
 
-    this.fireUpSpriteClone.x =
-      centerX + this.fireUpCloneBaseOffsetX * bgScaleRatioX;
-    this.fireUpSpriteClone.y =
-      centerY + this.fireUpCloneBaseOffsetY * bgScaleRatioY;
+    for (const config of animationDefinitions) {
+      this.ensureAnimation(config);
+    }
+  }
 
-    this.fireUpSpriteClone2.x =
-      centerX + this.fireUpClone2BaseOffsetX * bgScaleRatioX;
-    this.fireUpSpriteClone2.y =
-      centerY + this.fireUpClone2BaseOffsetY * bgScaleRatioY;
+  private ensureAnimation(config: SpriteAnimationConfig) {
+    if (this.anims.exists(config.key)) {
+      return;
+    }
 
-    this.smokeSprite.x = centerX + this.smokeBaseOffsetX * bgScaleRatioX;
-    this.smokeSprite.y = centerY + this.smokeBaseOffsetY * bgScaleRatioY;
+    this.anims.create({
+      key: config.key,
+      frames: this.anims.generateFrameNumbers(config.textureKey, {
+        start: config.frameStart,
+        end: config.frameEnd,
+      }),
+      frameRate: config.frameRate,
+      repeat: config.repeat,
+      showOnStart: config.showOnStart,
+      hideOnComplete: config.hideOnComplete,
+    });
+  }
 
-    this.smokeSpriteClone.x =
-      centerX + this.smokeCloneBaseOffsetX * bgScaleRatioX;
-    this.smokeSpriteClone.y =
-      centerY + this.smokeCloneBaseOffsetY * bgScaleRatioY;
+  private createAmbientEffects(centerX: number, centerY: number) {
+    const fireSprite = new AnchoredAnimatedSprite(this, centerX, centerY, {
+      x: 96,
+      y: 200,
+      textureKey: ASSETS.spritesheets.fireAnimation.key,
+      depth: 2,
+      scale: 0.4,
+      animationKey: MAIN_MENU_ANIMATION_KEYS.fireBurn,
+    });
+
+    const fireUpSprite = new AnchoredAnimatedSprite(this, centerX, centerY, {
+      x: 1018,
+      y: 490,
+      textureKey: ASSETS.spritesheets.fireAnimationUp.key,
+      depth: 2,
+      scale: 0.4,
+      visible: false,
+      animationTimeScale: 0.6,
+    });
+
+    const fireUpSpriteClone = new AnchoredAnimatedSprite(
+      this,
+      centerX,
+      centerY,
+      {
+        x: 256,
+        y: 416,
+        textureKey: ASSETS.spritesheets.fireAnimationUp.key,
+        depth: 2,
+        scale: 0.4,
+        visible: false,
+        animationTimeScale: 0.8,
+      },
+    );
+
+    const fireUpSpriteClone2 = new AnchoredAnimatedSprite(
+      this,
+      centerX,
+      centerY,
+      {
+        x: 456,
+        y: 616,
+        textureKey: ASSETS.spritesheets.fireAnimationUp.key,
+        depth: 2,
+        scale: 0.7,
+        visible: false,
+        animationTimeScale: 0.8,
+      },
+    );
+
+    const smokeSprite = new AnchoredAnimatedSprite(this, centerX, centerY, {
+      x: 918,
+      y: 430,
+      textureKey: ASSETS.spritesheets.smokeAnimation.key,
+      depth: 2,
+      scale: 0.4,
+      alpha: 0.55,
+      animationKey: MAIN_MENU_ANIMATION_KEYS.smokeLoop,
+    });
+
+    const smokeSpriteClone = new AnchoredAnimatedSprite(
+      this,
+      centerX,
+      centerY,
+      {
+        x: 296,
+        y: 500,
+        textureKey: ASSETS.spritesheets.smokeAnimation.key,
+        depth: 2,
+        scale: 1,
+        alpha: 0.55,
+        animationKey: MAIN_MENU_ANIMATION_KEYS.smokeLoop,
+      },
+    );
+
+    this.anchoredEffects = [
+      fireSprite,
+      fireUpSprite,
+      fireUpSpriteClone,
+      fireUpSpriteClone2,
+      smokeSprite,
+      smokeSpriteClone,
+    ];
+
+    const fireBurstLoop = new LoopedBurstAnimation(
+      this,
+      MAIN_MENU_ANIMATION_KEYS.fireBurstUp,
+      MAIN_MENU_TIMINGS.fireBurstLoopDelayMs,
+      [
+        { actor: fireUpSprite, delayMs: 0, timeScale: 0.6 },
+        {
+          actor: fireUpSpriteClone,
+          delayMs: MAIN_MENU_TIMINGS.fireBurstCloneDelayMs,
+          timeScale: 0.9,
+        },
+        {
+          actor: fireUpSpriteClone2,
+          delayMs: MAIN_MENU_TIMINGS.fireBurstClone2DelayMs,
+          timeScale: 0.7,
+        },
+      ],
+    );
+    fireBurstLoop.start();
   }
 }
