@@ -13,6 +13,7 @@ import {
 } from "../config/app-config";
 import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
 import { MenuZoomBackground } from "../scene-objects/MenuZoomBackground";
+import { RainEffect } from "../scene-objects/RainEffect";
 import type { SpriteAnimationConfig } from "../scene-objects/SpriteAnimationConfig";
 import { UIButton } from "../ui-components/Button";
 import { UIHeader } from "../ui-components/Header";
@@ -186,34 +187,7 @@ export class GameOver extends Scene {
   }
 
   private createRainEffect() {
-    if (!this.textures.exists(GAME_OVER_RAIN.textureKey)) {
-      const dropTexture = this.add.graphics();
-      dropTexture.setVisible(false);
-      dropTexture.fillStyle(GAME_OVER_RAIN.dropColor, GAME_OVER_RAIN.dropAlpha);
-      dropTexture.fillRect(
-        0,
-        0,
-        GAME_OVER_RAIN.dropWidth,
-        GAME_OVER_RAIN.dropHeight,
-      );
-      dropTexture.generateTexture(
-        GAME_OVER_RAIN.textureKey,
-        GAME_OVER_RAIN.dropWidth,
-        GAME_OVER_RAIN.dropHeight,
-      );
-      dropTexture.destroy();
-    }
-
-    const rain = this.add.particles(0, 0, GAME_OVER_RAIN.textureKey, {
-      x: { min: 0, max: this.scale.width },
-      y: GAME_OVER_RAIN.yStart,
-      lifespan: GAME_OVER_RAIN.lifespanMs,
-      speedY: { min: GAME_OVER_RAIN.speedYMin, max: GAME_OVER_RAIN.speedYMax },
-      speedX: { min: GAME_OVER_RAIN.speedXMin, max: GAME_OVER_RAIN.speedXMax },
-      quantity: GAME_OVER_RAIN.quantity,
-      alpha: { start: GAME_OVER_RAIN.alphaStart, end: GAME_OVER_RAIN.alphaEnd },
-    });
-    rain.setDepth(GAME_OVER_RAIN.depth);
+    new RainEffect(this, GAME_OVER_RAIN);
   }
 
   private createAmbientEffects(centerX: number, centerY: number) {
