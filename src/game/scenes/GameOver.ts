@@ -79,7 +79,7 @@ export class GameOver extends Scene {
         onClick: () => {
           this.startButton.setDisabled(true);
           this.menuMusic?.stop();
-          this.scene.start(SCENE_KEYS.game);
+          this.scene.start(SCENE_KEYS.neonCity);
         },
       },
     );

@@ -7,6 +7,7 @@ export const SCENE_KEYS = {
   preloader: "Preloader",
   mainMenu: "MainMenu",
   game: "Game",
+  neonCity: "NeonCity",
   gameOver: "GameOver",
 } as const;
 
@@ -64,6 +65,26 @@ export const ASSETS = {
     flyingCar: {
       key: "flying-car",
       path: "main-menu/flying-car.png",
+    },
+    neonCityBackground: {
+      key: "neon-city-bg",
+      path: "neon-city-scene/bg.png",
+    },
+    neonCitySidewalk: {
+      key: "neon-city-sidewalk",
+      path: "neon-city-scene/main-metal-structure.png",
+    },
+    neonCityLeftStartBuilding: {
+      key: "neon-city-left-start-building",
+      path: "neon-city-scene/left-start-building.png",
+    },
+    neonCityAutomatTrash: {
+      key: "neon-city-automat-trash",
+      path: "neon-city-scene/automat&trash.png",
+    },
+    deckard: {
+      key: "deckard",
+      path: "characters/deckard.png",
     },
   },
   spritesheets: {

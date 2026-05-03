@@ -1,7 +1,7 @@
 import { Boot } from "./scenes/Boot";
 import { APP_IDS, GAME_VIEWPORT } from "./config/app-config";
 import { GameOver } from "./scenes/GameOver";
-import { Game as MainGame } from "./scenes/Game";
+import { NeonCityScene as MainGame } from "./scenes/NeonCityScene";
 import { MainMenu } from "./scenes/MainMenu";
 import { AUTO, Game, Scale } from "phaser";
 import { Preloader } from "./scenes/Preloader";

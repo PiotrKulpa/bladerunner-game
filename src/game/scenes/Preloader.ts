@@ -39,6 +39,23 @@ export class Preloader extends Scene {
       ASSETS.images.uiButtonBackground.path,
     );
     this.load.image(ASSETS.images.flyingCar.key, ASSETS.images.flyingCar.path);
+    this.load.image(
+      ASSETS.images.neonCityBackground.key,
+      ASSETS.images.neonCityBackground.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCitySidewalk.key,
+      ASSETS.images.neonCitySidewalk.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityLeftStartBuilding.key,
+      ASSETS.images.neonCityLeftStartBuilding.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityAutomatTrash.key,
+      ASSETS.images.neonCityAutomatTrash.path,
+    );
+    this.load.image(ASSETS.images.deckard.key, ASSETS.images.deckard.path);
 
     this.load.spritesheet(
       ASSETS.spritesheets.fireAnimation.key,
