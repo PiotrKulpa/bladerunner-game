@@ -1,23 +1,41 @@
 import { GameObjects, Scene } from "phaser";
 import { Deckard } from "../characters/Deckard";
 import { ASSETS, SCENE_KEYS } from "../config/app-config";
+import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
 import { ParallaxLoopLayer } from "../scene-objects/ParallaxLoopLayer";
 
 const NEON_CITY_LAYOUT = {
   deckardOffsetFromSidewalkTop: 0,
   leftStartBuildingX: 0,
   automatTrashX: 180,
+  greenNeonBuildingX: 700,
+  groundCentralBuildingGapX: 0,
+  flatPinkGapFromGroundCentralX: 650,
+  flatPink2GapFromFlatPinkX: 0,
+  pipesStep: 1280,
+  smokeLiftY: 120,
 } as const;
 
 const NEON_CITY_SPEED = {
   movementBoost: 210,
 } as const;
 
+const NEON_CITY_ANIMATION_KEYS = {
+  smokeLoop: "smoke-loop-sprite",
+} as const;
+
 export class NeonCityScene extends Scene {
   private backgroundLayer?: ParallaxLoopLayer;
   private sidewalkLayer?: ParallaxLoopLayer;
+  private pipes: GameObjects.Image[] = [];
+  private smokeSprites: AnchoredAnimatedSprite[] = [];
+  private pipeStep = 0;
   private leftStartBuilding?: GameObjects.Image;
   private automatTrash?: GameObjects.Image;
+  private greenNeonBuilding?: GameObjects.Image;
+  private groundCentralBuilding?: GameObjects.Image;
+  private flatPinkBuilding?: GameObjects.Image;
+  private flatPink2Building?: GameObjects.Image;
   private deckard?: Deckard;
 
   constructor() {
@@ -33,6 +51,7 @@ export class NeonCityScene extends Scene {
       .get(ASSETS.images.neonCitySidewalk.key)
       .get();
     const sidewalkY = this.scale.height - sidewalkTextureFrame.cutHeight;
+    this.pipeStep = NEON_CITY_LAYOUT.pipesStep;
 
     this.backgroundLayer = new ParallaxLoopLayer(this, {
       textureKey: ASSETS.images.neonCityBackground.key,
@@ -45,6 +64,30 @@ export class NeonCityScene extends Scene {
       y: sidewalkY,
       depth: 2,
     });
+
+    const pipesCount = Math.ceil(this.scale.width / this.pipeStep) + 3;
+    for (let index = 0; index < pipesCount; index += 1) {
+      const pipe = this.add
+        .image(index * this.pipeStep, this.scale.height, ASSETS.images.neonCityPipes.key)
+        .setOrigin(0, 1)
+        .setDepth(1000);
+      this.pipes.push(pipe);
+    }
+
+    this.ensureSmokeAnimation();
+    for (const pipe of this.pipes) {
+      const smokeSprite = new AnchoredAnimatedSprite(this, centerX, this.scale.height / 2, {
+        x: pipe.x,
+        y: pipe.y - NEON_CITY_LAYOUT.smokeLiftY,
+        textureKey: ASSETS.spritesheets.smokeAnimation.key,
+        depth: 1001,
+        scale: 0.4,
+        alpha: 0.55,
+        animationKey: NEON_CITY_ANIMATION_KEYS.smokeLoop,
+      });
+      smokeSprite.sprite.setOrigin(0, 1);
+      this.smokeSprites.push(smokeSprite);
+    }
 
     this.leftStartBuilding = this.add
       .image(
@@ -64,6 +107,52 @@ export class NeonCityScene extends Scene {
       .setOrigin(0, 1)
       .setDepth(2.5);
 
+    this.greenNeonBuilding = this.add
+      .image(
+        NEON_CITY_LAYOUT.greenNeonBuildingX,
+        this.scale.height,
+        ASSETS.images.neonCityGreenNeonBuilding.key,
+      )
+      .setOrigin(0, 1)
+      .setScale(1)
+      .setDepth(0.5);
+
+    this.groundCentralBuilding = this.add
+      .image(
+        this.greenNeonBuilding.x +
+          this.greenNeonBuilding.displayWidth +
+          NEON_CITY_LAYOUT.groundCentralBuildingGapX,
+        this.scale.height,
+        ASSETS.images.neonCityGroundCentralBuilding.key,
+      )
+      .setOrigin(0, 1)
+      .setScale(1)
+      .setDepth(0.5);
+
+    this.flatPinkBuilding = this.add
+      .image(
+        this.groundCentralBuilding.x +
+          this.groundCentralBuilding.displayWidth +
+          NEON_CITY_LAYOUT.flatPinkGapFromGroundCentralX,
+        sidewalkY,
+        ASSETS.images.neonCityFlatPink.key,
+      )
+      .setOrigin(0, 1)
+      .setScale(1)
+      .setDepth(0.5);
+
+    this.flatPink2Building = this.add
+      .image(
+        this.flatPinkBuilding.x +
+          this.flatPinkBuilding.displayWidth +
+          NEON_CITY_LAYOUT.flatPink2GapFromFlatPinkX,
+        sidewalkY,
+        ASSETS.images.neonCityFlatPink2.key,
+      )
+      .setOrigin(0, 1)
+      .setScale(1)
+      .setDepth(0.5);
+
     this.deckard = new Deckard(this, {
       textureKey: ASSETS.images.deckard.key,
       x: centerX,
@@ -78,8 +167,13 @@ export class NeonCityScene extends Scene {
     if (
       !this.backgroundLayer ||
       !this.sidewalkLayer ||
+      this.pipes.length === 0 ||
       !this.leftStartBuilding ||
       !this.automatTrash ||
+      !this.greenNeonBuilding ||
+      !this.groundCentralBuilding ||
+      !this.flatPinkBuilding ||
+      !this.flatPink2Building ||
       !this.deckard
     ) {
       return;
@@ -119,7 +213,82 @@ export class NeonCityScene extends Scene {
       effectiveWorldSpeed * 0.3,
     );
     this.sidewalkLayer.scroll(deltaSeconds, effectiveWorldSpeed);
+    this.scrollPipes(deltaSeconds, effectiveWorldSpeed);
+    this.syncSmokeToPipe();
     this.leftStartBuilding.x = nextBuildingX;
     this.automatTrash.x -= effectiveWorldSpeed * deltaSeconds;
+    this.greenNeonBuilding.x -= effectiveWorldSpeed * deltaSeconds;
+    this.groundCentralBuilding.x -= effectiveWorldSpeed * deltaSeconds;
+    this.flatPinkBuilding.x -= effectiveWorldSpeed * deltaSeconds;
+    this.flatPink2Building.x -= effectiveWorldSpeed * deltaSeconds;
+  }
+
+  private scrollPipes(deltaSeconds: number, speedPxPerSecond: number) {
+    const shift = speedPxPerSecond * deltaSeconds;
+    if (shift === 0) {
+      return;
+    }
+
+    for (const pipe of this.pipes) {
+      pipe.x -= shift;
+    }
+
+    if (shift > 0) {
+      for (const pipe of this.pipes) {
+        if (pipe.x + pipe.displayWidth <= 0) {
+          pipe.x = this.getRightmostPipeX() + this.pipeStep;
+        }
+      }
+      return;
+    }
+
+    for (const pipe of this.pipes) {
+      if (pipe.x >= this.scale.width) {
+        pipe.x = this.getLeftmostPipeX() - this.pipeStep;
+      }
+    }
+  }
+
+  private getRightmostPipeX() {
+    return this.pipes.reduce(
+      (rightmostX, pipe) => Math.max(rightmostX, pipe.x),
+      Number.NEGATIVE_INFINITY,
+    );
+  }
+
+  private getLeftmostPipeX() {
+    return this.pipes.reduce(
+      (leftmostX, pipe) => Math.min(leftmostX, pipe.x),
+      Number.POSITIVE_INFINITY,
+    );
+  }
+
+  private syncSmokeToPipe() {
+    for (let index = 0; index < this.pipes.length; index += 1) {
+      const pipe = this.pipes[index];
+      const smokeSprite = this.smokeSprites[index];
+      if (!smokeSprite) {
+        continue;
+      }
+
+      smokeSprite.sprite.x = pipe.x;
+      smokeSprite.sprite.y = pipe.y - NEON_CITY_LAYOUT.smokeLiftY;
+    }
+  }
+
+  private ensureSmokeAnimation() {
+    if (this.anims.exists(NEON_CITY_ANIMATION_KEYS.smokeLoop)) {
+      return;
+    }
+
+    this.anims.create({
+      key: NEON_CITY_ANIMATION_KEYS.smokeLoop,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.smokeAnimation.key, {
+        start: 0,
+        end: 7,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
   }
 }

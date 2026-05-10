@@ -55,6 +55,26 @@ export class Preloader extends Scene {
       ASSETS.images.neonCityAutomatTrash.key,
       ASSETS.images.neonCityAutomatTrash.path,
     );
+    this.load.image(
+      ASSETS.images.neonCityGreenNeonBuilding.key,
+      ASSETS.images.neonCityGreenNeonBuilding.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityGroundCentralBuilding.key,
+      ASSETS.images.neonCityGroundCentralBuilding.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityFlatPink.key,
+      ASSETS.images.neonCityFlatPink.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityFlatPink2.key,
+      ASSETS.images.neonCityFlatPink2.path,
+    );
+    this.load.image(
+      ASSETS.images.neonCityPipes.key,
+      ASSETS.images.neonCityPipes.path,
+    );
     this.load.image(ASSETS.images.deckard.key, ASSETS.images.deckard.path);
 
     this.load.spritesheet(
@@ -94,6 +114,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start(SCENE_KEYS.mainMenu);
+    this.scene.start(SCENE_KEYS.neonCity);
   }
 }

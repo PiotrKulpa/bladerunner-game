@@ -82,6 +82,26 @@ export const ASSETS = {
       key: "neon-city-automat-trash",
       path: "neon-city-scene/automat&trash.png",
     },
+    neonCityGreenNeonBuilding: {
+      key: "neon-city-green-neon-building",
+      path: "neon-city-scene/green-neon-building.png",
+    },
+    neonCityGroundCentralBuilding: {
+      key: "neon-city-ground-central-building",
+      path: "neon-city-scene/grnd-central-building.png",
+    },
+    neonCityFlatPink: {
+      key: "neon-city-flat-pink",
+      path: "neon-city-scene/flat-pink.png",
+    },
+    neonCityFlatPink2: {
+      key: "neon-city-flat-pink-2",
+      path: "neon-city-scene/flat-pink2.png",
+    },
+    neonCityPipes: {
+      key: "neon-city-pipes",
+      path: "neon-city-scene/pipes.png",
+    },
     deckard: {
       key: "deckard",
       path: "characters/deckard.png",
