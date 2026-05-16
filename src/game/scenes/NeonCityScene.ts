@@ -1,6 +1,6 @@
 import { GameObjects, Scene } from "phaser";
 import { Deckard } from "../characters/Deckard";
-import { ASSETS, SCENE_KEYS } from "../config/app-config";
+import { ASSETS, DECKARD_RUN, SCENE_KEYS } from "../config/app-config";
 import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
 import { ParallaxLoopLayer } from "../scene-objects/ParallaxLoopLayer";
 
@@ -75,6 +75,7 @@ export class NeonCityScene extends Scene {
     }
 
     this.ensureSmokeAnimation();
+    this.ensureDeckardRunAnimation();
     for (const pipe of this.pipes) {
       const smokeSprite = new AnchoredAnimatedSprite(this, centerX, this.scale.height / 2, {
         x: pipe.x,
@@ -155,6 +156,7 @@ export class NeonCityScene extends Scene {
 
     this.deckard = new Deckard(this, {
       textureKey: ASSETS.images.deckard.key,
+      runAnimationKey: DECKARD_RUN.animationKey,
       x: centerX,
       y: sidewalkY + NEON_CITY_LAYOUT.deckardOffsetFromSidewalkTop,
       moveSpeed: 270,
@@ -289,6 +291,22 @@ export class NeonCityScene extends Scene {
       }),
       frameRate: 10,
       repeat: -1,
+    });
+  }
+
+  private ensureDeckardRunAnimation() {
+    if (this.anims.exists(DECKARD_RUN.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_RUN.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardRun.key, {
+        start: DECKARD_RUN.frameStart,
+        end: DECKARD_RUN.frameEnd,
+      }),
+      frameRate: DECKARD_RUN.frameRate,
+      repeat: DECKARD_RUN.repeat,
     });
   }
 }

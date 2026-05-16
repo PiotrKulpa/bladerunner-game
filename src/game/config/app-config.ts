@@ -126,6 +126,12 @@ export const ASSETS = {
       frameWidth: 235,
       frameHeight: 383,
     },
+    deckardRun: {
+      key: "deckard-run",
+      path: "characters/deckard-run-sprite.png",
+      frameWidth: 111,
+      frameHeight: 142,
+    },
     gameOverOwlAnimation: {
       key: "game-over-owl-animation",
       path: "game-over/owl-animation-sheet.png",
@@ -199,6 +205,14 @@ export const MAIN_MENU_TIMINGS = {
 export const MAIN_MENU_AUDIO = {
   themeLoop: true,
   themeVolume: 0.5,
+} as const;
+
+export const DECKARD_RUN = {
+  animationKey: "deckard-run-loop",
+  frameStart: 0,
+  frameEnd: 7,
+  frameRate: 12,
+  repeat: -1,
 } as const;
 
 export const GAME_OVER_OWL = {

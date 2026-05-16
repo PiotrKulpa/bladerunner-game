@@ -2,14 +2,17 @@ import { GameObjects, Input, Math as PhaserMath, Scene } from "phaser";
 
 export interface DeckardConfig {
   textureKey: string;
+  runAnimationKey: string;
   x: number;
   y: number;
   moveSpeed: number;
   horizontalPadding: number;
 }
 
-export class Deckard extends GameObjects.Image {
+export class Deckard extends GameObjects.Sprite {
   private readonly cursors: Input.Keyboard.CursorKeys;
+  private readonly idleTextureKey: string;
+  private readonly runAnimationKey: string;
   private readonly moveSpeed: number;
   private readonly horizontalPadding: number;
   private moveDirection = 0;
@@ -23,6 +26,8 @@ export class Deckard extends GameObjects.Image {
     }
 
     this.cursors = keyboard.createCursorKeys();
+    this.idleTextureKey = config.textureKey;
+    this.runAnimationKey = config.runAnimationKey;
     this.moveSpeed = config.moveSpeed;
     this.horizontalPadding = config.horizontalPadding;
 
@@ -35,7 +40,7 @@ export class Deckard extends GameObjects.Image {
     deltaSeconds: number,
     viewportWidth: number,
     minCenterX?: number,
-  ) {
+  ): void {
     this.moveDirection = 0;
 
     if (this.cursors.left.isDown) {
@@ -56,9 +61,26 @@ export class Deckard extends GameObjects.Image {
     } else if (this.moveDirection > 0) {
       this.setFlipX(false);
     }
+
+    this.updateRunAnimation();
   }
 
-  getMoveDirection() {
+  getMoveDirection(): number {
     return this.moveDirection;
+  }
+
+  private updateRunAnimation(): void {
+    if (this.moveDirection !== 0) {
+      this.play(this.runAnimationKey, true);
+      return;
+    }
+
+    if (!this.anims.isPlaying && this.texture.key === this.idleTextureKey) {
+      return;
+    }
+
+    this.stop();
+    this.setTexture(this.idleTextureKey);
+    this.setOrigin(0.5, 1);
   }
 }
