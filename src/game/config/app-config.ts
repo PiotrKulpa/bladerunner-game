@@ -132,6 +132,12 @@ export const ASSETS = {
       frameWidth: 111,
       frameHeight: 142,
     },
+    deckardJump: {
+      key: "deckard-jump",
+      path: "characters/deckard-jump-sprite.png",
+      frameWidth: 130,
+      frameHeight: 142,
+    },
     gameOverOwlAnimation: {
       key: "game-over-owl-animation",
       path: "game-over/owl-animation-sheet.png",
@@ -213,6 +219,20 @@ export const DECKARD_RUN = {
   frameEnd: 7,
   frameRate: 12,
   repeat: -1,
+} as const;
+
+export const DECKARD_JUMP = {
+  animationKey: "deckard-jump-loop",
+  frameStart: 0,
+  frameEnd: 4,
+  repeat: 0,
+  jumpMovementStartDelayMs: 50,
+  jumpHeight: 135,
+  jumpRiseDurationMs: 250,
+  jumpFallDurationMs: 250,
+  get animationDurationMs() {
+    return this.jumpRiseDurationMs + this.jumpFallDurationMs;
+  },
 } as const;
 
 export const GAME_OVER_OWL = {

@@ -110,6 +110,14 @@ export class Preloader extends Scene {
       },
     );
     this.load.spritesheet(
+      ASSETS.spritesheets.deckardJump.key,
+      ASSETS.spritesheets.deckardJump.path,
+      {
+        frameWidth: ASSETS.spritesheets.deckardJump.frameWidth,
+        frameHeight: ASSETS.spritesheets.deckardJump.frameHeight,
+      },
+    );
+    this.load.spritesheet(
       ASSETS.spritesheets.gameOverOwlAnimation.key,
       ASSETS.spritesheets.gameOverOwlAnimation.path,
       {

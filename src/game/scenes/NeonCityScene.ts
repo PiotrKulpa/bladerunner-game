@@ -1,11 +1,12 @@
 import { GameObjects, Scene } from "phaser";
 import { Deckard } from "../characters/Deckard";
-import { ASSETS, DECKARD_RUN, SCENE_KEYS } from "../config/app-config";
+import { ASSETS, DECKARD_JUMP, DECKARD_RUN, SCENE_KEYS } from "../config/app-config";
 import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
 import { ParallaxLoopLayer } from "../scene-objects/ParallaxLoopLayer";
 
 const NEON_CITY_LAYOUT = {
   deckardOffsetFromSidewalkTop: 0,
+  deckardScale: 1,
   leftStartBuildingX: 0,
   automatTrashX: 180,
   greenNeonBuildingX: 700,
@@ -76,6 +77,7 @@ export class NeonCityScene extends Scene {
 
     this.ensureSmokeAnimation();
     this.ensureDeckardRunAnimation();
+    this.ensureDeckardJumpAnimation();
     for (const pipe of this.pipes) {
       const smokeSprite = new AnchoredAnimatedSprite(this, centerX, this.scale.height / 2, {
         x: pipe.x,
@@ -157,11 +159,17 @@ export class NeonCityScene extends Scene {
     this.deckard = new Deckard(this, {
       textureKey: ASSETS.images.deckard.key,
       runAnimationKey: DECKARD_RUN.animationKey,
+      jumpAnimationKey: DECKARD_JUMP.animationKey,
       x: centerX,
       y: sidewalkY + NEON_CITY_LAYOUT.deckardOffsetFromSidewalkTop,
       moveSpeed: 270,
       horizontalPadding: 20,
+      jumpHeight: DECKARD_JUMP.jumpHeight,
+      jumpRiseDurationMs: DECKARD_JUMP.jumpRiseDurationMs,
+      jumpFallDurationMs: DECKARD_JUMP.jumpFallDurationMs,
+      jumpMovementStartDelayMs: DECKARD_JUMP.jumpMovementStartDelayMs,
     });
+    this.deckard.setScale(NEON_CITY_LAYOUT.deckardScale);
     this.deckard.setDepth(3);
   }
 
@@ -307,6 +315,22 @@ export class NeonCityScene extends Scene {
       }),
       frameRate: DECKARD_RUN.frameRate,
       repeat: DECKARD_RUN.repeat,
+    });
+  }
+
+  private ensureDeckardJumpAnimation() {
+    if (this.anims.exists(DECKARD_JUMP.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_JUMP.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardJump.key, {
+        start: DECKARD_JUMP.frameStart,
+        end: DECKARD_JUMP.frameEnd,
+      }),
+      duration: DECKARD_JUMP.animationDurationMs,
+      repeat: DECKARD_JUMP.repeat,
     });
   }
 }
