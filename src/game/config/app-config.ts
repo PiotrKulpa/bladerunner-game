@@ -138,6 +138,12 @@ export const ASSETS = {
       frameWidth: 130,
       frameHeight: 142,
     },
+    deckardShootFront: {
+      key: "deckard-shoot-front",
+      path: "characters/deckard-shoot-front-sprite.png",
+      frameWidth: 127,
+      frameHeight: 142,
+    },
     gameOverOwlAnimation: {
       key: "game-over-owl-animation",
       path: "game-over/owl-animation-sheet.png",
@@ -233,6 +239,14 @@ export const DECKARD_JUMP = {
   get animationDurationMs() {
     return this.jumpRiseDurationMs + this.jumpFallDurationMs;
   },
+} as const;
+
+export const DECKARD_SHOOT_FRONT = {
+  animationKey: "deckard-shoot-front-loop",
+  frameStart: 0,
+  frameEnd: 2,
+  frameRate: 14,
+  repeat: 0,
 } as const;
 
 export const GAME_OVER_OWL = {

@@ -4,6 +4,7 @@ export interface DeckardConfig {
   textureKey: string;
   runAnimationKey: string;
   jumpAnimationKey: string;
+  shootFrontAnimationKey: string;
   x: number;
   y: number;
   moveSpeed: number;
@@ -19,6 +20,7 @@ export class Deckard extends GameObjects.Sprite {
   private readonly idleTextureKey: string;
   private readonly runAnimationKey: string;
   private readonly jumpAnimationKey: string;
+  private readonly shootFrontAnimationKey: string;
   private readonly moveSpeed: number;
   private readonly horizontalPadding: number;
   private readonly jumpHeight: number;
@@ -28,6 +30,7 @@ export class Deckard extends GameObjects.Sprite {
   private readonly groundY: number;
   private moveDirection = 0;
   private isJumping = false;
+  private isShooting = false;
 
   constructor(scene: Scene, config: DeckardConfig) {
     super(scene, config.x, config.y, config.textureKey);
@@ -41,6 +44,7 @@ export class Deckard extends GameObjects.Sprite {
     this.idleTextureKey = config.textureKey;
     this.runAnimationKey = config.runAnimationKey;
     this.jumpAnimationKey = config.jumpAnimationKey;
+    this.shootFrontAnimationKey = config.shootFrontAnimationKey;
     this.moveSpeed = config.moveSpeed;
     this.horizontalPadding = config.horizontalPadding;
     this.jumpHeight = config.jumpHeight;
@@ -67,6 +71,10 @@ export class Deckard extends GameObjects.Sprite {
       this.moveDirection = 1;
     }
     this.tryStartJump();
+    this.tryStartShootFront();
+    if (this.isShooting) {
+      this.moveDirection = 0;
+    }
 
     const nextX = this.x + this.moveDirection * this.moveSpeed * deltaSeconds;
     const defaultMinX = this.displayWidth * 0.5 + this.horizontalPadding;
@@ -89,7 +97,7 @@ export class Deckard extends GameObjects.Sprite {
   }
 
   private tryStartJump(): void {
-    if (this.isJumping || !Input.Keyboard.JustDown(this.cursors.up)) {
+    if (this.isJumping || this.isShooting || !Input.Keyboard.JustDown(this.cursors.up)) {
       return;
     }
 
@@ -122,8 +130,29 @@ export class Deckard extends GameObjects.Sprite {
     });
   }
 
+  private tryStartShootFront(): void {
+    if (
+      this.isShooting ||
+      this.isJumping ||
+      this.moveDirection !== 0 ||
+      !Input.Keyboard.JustDown(this.cursors.space)
+    ) {
+      return;
+    }
+
+    this.isShooting = true;
+    this.play(this.shootFrontAnimationKey, true);
+    this.once(`animationcomplete-${this.shootFrontAnimationKey}`, () => {
+      this.isShooting = false;
+    });
+  }
+
   private updateRunAnimation(): void {
     if (this.isJumping) {
+      return;
+    }
+
+    if (this.isShooting) {
       return;
     }
 
