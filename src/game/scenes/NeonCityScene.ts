@@ -2,9 +2,13 @@ import { GameObjects, Scene } from "phaser";
 import { Deckard } from "../characters/Deckard";
 import {
   ASSETS,
+  DECKARD_CROUCH_FIRE,
   DECKARD_JUMP,
   DECKARD_RUN,
+  DECKARD_RUN_FIRE,
+  DECKARD_RUN_FIRE_UP,
   DECKARD_SHOOT_FRONT,
+  DECKARD_SHOOT_UP,
   SCENE_KEYS,
 } from "../config/app-config";
 import { AnchoredAnimatedSprite } from "../scene-objects/AnchoredAnimatedSprite";
@@ -83,8 +87,12 @@ export class NeonCityScene extends Scene {
 
     this.ensureSmokeAnimation();
     this.ensureDeckardRunAnimation();
+    this.ensureDeckardRunFireAnimation();
+    this.ensureDeckardRunFireUpAnimation();
     this.ensureDeckardJumpAnimation();
     this.ensureDeckardShootFrontAnimation();
+    this.ensureDeckardShootUpAnimation();
+    this.ensureDeckardCrouchFireAnimation();
     for (const pipe of this.pipes) {
       const smokeSprite = new AnchoredAnimatedSprite(this, centerX, this.scale.height / 2, {
         x: pipe.x,
@@ -166,8 +174,14 @@ export class NeonCityScene extends Scene {
     this.deckard = new Deckard(this, {
       textureKey: ASSETS.images.deckard.key,
       runAnimationKey: DECKARD_RUN.animationKey,
+      runFireTextureKey: ASSETS.spritesheets.deckardRunFire.key,
+      runFireUpTextureKey: ASSETS.spritesheets.deckardRunFireUp.key,
       jumpAnimationKey: DECKARD_JUMP.animationKey,
       shootFrontAnimationKey: DECKARD_SHOOT_FRONT.animationKey,
+      shootUpAnimationKey: DECKARD_SHOOT_UP.animationKey,
+      crouchFireAnimationKey: DECKARD_CROUCH_FIRE.animationKey,
+      crouchTextureKey: ASSETS.spritesheets.deckardCrouchFire.key,
+      crouchFrame: DECKARD_CROUCH_FIRE.crouchFrame,
       x: centerX,
       y: sidewalkY + NEON_CITY_LAYOUT.deckardOffsetFromSidewalkTop,
       moveSpeed: 270,
@@ -326,6 +340,38 @@ export class NeonCityScene extends Scene {
     });
   }
 
+  private ensureDeckardRunFireAnimation() {
+    if (this.anims.exists(DECKARD_RUN_FIRE.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_RUN_FIRE.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardRunFire.key, {
+        start: DECKARD_RUN_FIRE.frameStart,
+        end: DECKARD_RUN_FIRE.frameEnd,
+      }),
+      frameRate: DECKARD_RUN_FIRE.frameRate,
+      repeat: DECKARD_RUN_FIRE.repeat,
+    });
+  }
+
+  private ensureDeckardRunFireUpAnimation() {
+    if (this.anims.exists(DECKARD_RUN_FIRE_UP.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_RUN_FIRE_UP.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardRunFireUp.key, {
+        start: DECKARD_RUN_FIRE_UP.frameStart,
+        end: DECKARD_RUN_FIRE_UP.frameEnd,
+      }),
+      frameRate: DECKARD_RUN_FIRE_UP.frameRate,
+      repeat: DECKARD_RUN_FIRE_UP.repeat,
+    });
+  }
+
   private ensureDeckardJumpAnimation() {
     if (this.anims.exists(DECKARD_JUMP.animationKey)) {
       return;
@@ -355,6 +401,38 @@ export class NeonCityScene extends Scene {
       }),
       frameRate: DECKARD_SHOOT_FRONT.frameRate,
       repeat: DECKARD_SHOOT_FRONT.repeat,
+    });
+  }
+
+  private ensureDeckardShootUpAnimation() {
+    if (this.anims.exists(DECKARD_SHOOT_UP.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_SHOOT_UP.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardShootUp.key, {
+        start: DECKARD_SHOOT_UP.frameStart,
+        end: DECKARD_SHOOT_UP.frameEnd,
+      }),
+      frameRate: DECKARD_SHOOT_UP.frameRate,
+      repeat: DECKARD_SHOOT_UP.repeat,
+    });
+  }
+
+  private ensureDeckardCrouchFireAnimation() {
+    if (this.anims.exists(DECKARD_CROUCH_FIRE.animationKey)) {
+      return;
+    }
+
+    this.anims.create({
+      key: DECKARD_CROUCH_FIRE.animationKey,
+      frames: this.anims.generateFrameNumbers(ASSETS.spritesheets.deckardCrouchFire.key, {
+        start: DECKARD_CROUCH_FIRE.fireFrameStart,
+        end: DECKARD_CROUCH_FIRE.fireFrameEnd,
+      }),
+      frameRate: DECKARD_CROUCH_FIRE.frameRate,
+      repeat: DECKARD_CROUCH_FIRE.repeat,
     });
   }
 }

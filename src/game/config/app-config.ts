@@ -132,6 +132,18 @@ export const ASSETS = {
       frameWidth: 111,
       frameHeight: 142,
     },
+    deckardRunFire: {
+      key: "deckard-run-fire",
+      path: "characters/deckard-run-fire-sprite.png",
+      frameWidth: 150,
+      frameHeight: 142,
+    },
+    deckardRunFireUp: {
+      key: "deckard-run-fire-up",
+      path: "characters/deckard-run-fire-up-sprite.png",
+      frameWidth: 150,
+      frameHeight: 182,
+    },
     deckardJump: {
       key: "deckard-jump",
       path: "characters/deckard-jump-sprite.png",
@@ -143,6 +155,18 @@ export const ASSETS = {
       path: "characters/deckard-shoot-front-sprite.png",
       frameWidth: 127,
       frameHeight: 142,
+    },
+    deckardShootUp: {
+      key: "deckard-shoot-up",
+      path: "characters/deckard-shoot-up-sprite.png",
+      frameWidth: 81,
+      frameHeight: 178,
+    },
+    deckardCrouchFire: {
+      key: "deckard-crouch-fire",
+      path: "characters/decard-crouch-shoot-sprite.png",
+      frameWidth: 76,
+      frameHeight: 144,
     },
     gameOverOwlAnimation: {
       key: "game-over-owl-animation",
@@ -227,6 +251,22 @@ export const DECKARD_RUN = {
   repeat: -1,
 } as const;
 
+export const DECKARD_RUN_FIRE = {
+  animationKey: "deckard-run-fire-loop",
+  frameStart: 0,
+  frameEnd: 7,
+  frameRate: 12,
+  repeat: 0,
+} as const;
+
+export const DECKARD_RUN_FIRE_UP = {
+  animationKey: "deckard-run-fire-up-loop",
+  frameStart: 0,
+  frameEnd: 7,
+  frameRate: 12,
+  repeat: 0,
+} as const;
+
 export const DECKARD_JUMP = {
   animationKey: "deckard-jump-loop",
   frameStart: 0,
@@ -246,6 +286,23 @@ export const DECKARD_SHOOT_FRONT = {
   frameStart: 0,
   frameEnd: 2,
   frameRate: 14,
+  repeat: 0,
+} as const;
+
+export const DECKARD_SHOOT_UP = {
+  animationKey: "deckard-shoot-up-loop",
+  frameStart: 0,
+  frameEnd: 1,
+  frameRate: 14,
+  repeat: 0,
+} as const;
+
+export const DECKARD_CROUCH_FIRE = {
+  animationKey: "deckard-crouch-fire-loop",
+  crouchFrame: 0,
+  fireFrameStart: 0,
+  fireFrameEnd: 1,
+  frameRate: 16,
   repeat: 0,
 } as const;
 

@@ -110,6 +110,22 @@ export class Preloader extends Scene {
       },
     );
     this.load.spritesheet(
+      ASSETS.spritesheets.deckardRunFire.key,
+      ASSETS.spritesheets.deckardRunFire.path,
+      {
+        frameWidth: ASSETS.spritesheets.deckardRunFire.frameWidth,
+        frameHeight: ASSETS.spritesheets.deckardRunFire.frameHeight,
+      },
+    );
+    this.load.spritesheet(
+      ASSETS.spritesheets.deckardRunFireUp.key,
+      ASSETS.spritesheets.deckardRunFireUp.path,
+      {
+        frameWidth: ASSETS.spritesheets.deckardRunFireUp.frameWidth,
+        frameHeight: ASSETS.spritesheets.deckardRunFireUp.frameHeight,
+      },
+    );
+    this.load.spritesheet(
       ASSETS.spritesheets.deckardJump.key,
       ASSETS.spritesheets.deckardJump.path,
       {
@@ -123,6 +139,22 @@ export class Preloader extends Scene {
       {
         frameWidth: ASSETS.spritesheets.deckardShootFront.frameWidth,
         frameHeight: ASSETS.spritesheets.deckardShootFront.frameHeight,
+      },
+    );
+    this.load.spritesheet(
+      ASSETS.spritesheets.deckardShootUp.key,
+      ASSETS.spritesheets.deckardShootUp.path,
+      {
+        frameWidth: ASSETS.spritesheets.deckardShootUp.frameWidth,
+        frameHeight: ASSETS.spritesheets.deckardShootUp.frameHeight,
+      },
+    );
+    this.load.spritesheet(
+      ASSETS.spritesheets.deckardCrouchFire.key,
+      ASSETS.spritesheets.deckardCrouchFire.path,
+      {
+        frameWidth: ASSETS.spritesheets.deckardCrouchFire.frameWidth,
+        frameHeight: ASSETS.spritesheets.deckardCrouchFire.frameHeight,
       },
     );
     this.load.spritesheet(
